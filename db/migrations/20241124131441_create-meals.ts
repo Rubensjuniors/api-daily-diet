@@ -8,7 +8,6 @@ export async function up(knex: Knex): Promise<void> {
     t.timestamp('datetime')
     t.boolean('in_diet')
     t.uuid('user_id').after('id').index()
-    t.uuid('session_id').after('id').index()
     // t.uuid('user_id')
     //   .notNullable()
     //   .references('id')

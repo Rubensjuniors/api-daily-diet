@@ -2,14 +2,20 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { knex } from '../db/database'
 import { z } from 'zod'
 
-export async function checkUserAndSessionsIdEqualsUserSessionId(
+export async function checkUserAndSessionsId(
   request: FastifyRequest,
   replay: FastifyReply,
 ) {
   const sessionId = request.cookies.sessionId
 
+  if (!sessionId) {
+    return replay.status(401).send({
+      error: 'Unauthorized',
+    })
+  }
+
   const user = await knex('users')
-    .select('id', 'session_id')
+    .select()
     .where('session_id', sessionId)
     .first()
 
@@ -18,6 +24,7 @@ export async function checkUserAndSessionsIdEqualsUserSessionId(
       error: 'Unauthorized',
     })
   }
+  request.user = user
 }
 
 export async function checkUserExist(
@@ -35,7 +42,7 @@ export async function checkUserExist(
     })
   }
 
-  const user = await knex('users').select('id').where('id', id).first()
+  const user = await knex('users').select().where('id', id).first()
 
   if (!user?.id) {
     return replay.status(401).send({
